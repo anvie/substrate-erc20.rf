@@ -1,0 +1,44 @@
+[reframe]
+name = "ERC20"
+author = "somebody"
+min_version = "0.3.0"
+
+[project]
+name = "ERC20"
+version = "0.1.0"
+ignore_dirs = [
+    "target", "build"
+]
+
+finish_text = """Usage:
+
+    $ cd $name_kebab_case$
+
+Test:
+
+    $ cargo +nightly test
+
+Build:
+
+    $ cargo +nightly contract build
+
+    NOTES: Please make sure you have cargo-contract installed,
+           or install with the following command:
+
+           $ cargo install cargo-contract --vers 0.8.0 --force --locked
+"""
+
+[[param]]
+description = { ask = "Description ?", default = "My ERC-20 Smart contract" }
+
+[[param]]
+author_name = { ask = "Author name?", default="Author" }
+
+[[param]]
+author_email = { ask = "Author email?", default="author@example.com" }
+
+[[param]]
+default_total_supply = { ask = "Default supply? (Unit)", default="21000000" }
+
+[[param]]
+with_failed_event = { ask = "Emit event when failed?", default="true" }
