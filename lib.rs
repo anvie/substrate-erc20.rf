@@ -17,6 +17,9 @@ mod $name_snake_case$ {
     use ink_prelude::string;
     // <% endif %>
 
+    /// Token unit type
+    type Token = u32;
+
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
@@ -24,17 +27,17 @@ mod $name_snake_case$ {
     #[ink(storage)]
     pub struct $name_pascal_case$ {
         /// The total supply of the contract.
-        total_supply: Balance,
+        total_supply: Token,
 
-        /// Balance of each user's contract.
-        balances: ink_storage::collections::HashMap<AccountId, Balance>,
+        /// Token of each user's contract.
+        balances: ink_storage::collections::HashMap<AccountId, Token>,
 
         /// The owner of this contract.
         owner: AccountId,
 
-        /// Balances that are spendable by non-owners
+        /// Tokens that are spendable by non-owners
         /// this useful for subscription model payment.
-        allowances: ink_storage::collections::HashMap<(AccountId, AccountId), Balance>
+        allowances: ink_storage::collections::HashMap<(AccountId, AccountId), Token>
     }
 
     #[ink(event)]
@@ -43,7 +46,7 @@ mod $name_snake_case$ {
         from: Option<AccountId>,
         #[ink(topic)]
         to: Option<AccountId>,
-        amount: Balance,
+        amount: Token,
     }
 
     // <% if param.with_failed_event %>
@@ -63,13 +66,13 @@ mod $name_snake_case$ {
         spender: AccountId,
 
         /// Amount balance allowed to transfer by spender.
-        amount: Balance,
+        amount: Token,
     }
 
     impl $name_pascal_case$ {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
+        /// Constructor that initializes the total supply value to the given `total_supply`.
         #[ink(constructor)]
-        pub fn new(total_supply: Balance) -> Self {
+        pub fn new(total_supply: Token) -> Self {
             let mut balances = ink_storage::collections::HashMap::new();
             let owner = Self::env().caller();
             balances.insert(owner, total_supply);
@@ -92,23 +95,24 @@ mod $name_snake_case$ {
         #[ink(constructor)]
         pub fn default() -> Self {
             // convert to Unit
-            Self::new($param.default_total_supply$ * 1_000_000_000_000)
+            Self::new($param.default_total_supply$)
         }
 
         /// Get the total supply of token of this contract.
         #[ink(message)]
-        pub fn total_supply(&self) -> Balance {
+        pub fn total_supply(&self) -> Token {
             self.total_supply
         }
 
         /// Transfer token
         #[ink(message)]
-        pub fn transfer(&mut self, to: AccountId, amount: Balance) -> bool {
+        pub fn transfer(&mut self, to: AccountId, amount: Token) -> bool {
             self.transfer_from_to(self.env().caller(), to, amount)
         }
 
+        /// Spend token by permission of the owner.
         #[ink(message)]
-        pub fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: Balance) -> bool {
+        pub fn transfer_from(&mut self, from: AccountId, to: AccountId, amount: Token) -> bool {
             let allowance = self.get_allowance_or_zero(&from, &self.env().caller());
             if allowance < amount {
                 // amount to transfer is more than allowed.
@@ -126,7 +130,7 @@ mod $name_snake_case$ {
             true
         }
 
-        fn transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Balance) -> bool {
+        fn transfer_from_to(&mut self, from: AccountId, to: AccountId, amount: Token) -> bool {
             let sender_bal = self.get_balance_or_zero(&from);
             if sender_bal < amount {
                 // insufficient amount
@@ -154,13 +158,13 @@ mod $name_snake_case$ {
 
         /// Get account's balances
         #[ink(message)]
-        pub fn balance_of(&self, of: AccountId) -> Balance {
+        pub fn balance_of(&self, of: AccountId) -> Token {
             self.get_balance_or_zero(&of)
         }
 
         /// Approve third party to spend on behalf of user's account
         #[ink(message)]
-        pub fn approve(&mut self, spender: AccountId, amount: Balance) -> bool {
+        pub fn approve(&mut self, spender: AccountId, amount: Token) -> bool {
             let owner = self.env().caller();
 
             self.allowances.insert((owner, spender), amount);
@@ -176,15 +180,15 @@ mod $name_snake_case$ {
 
         /// Get remaining balance allowed by owner to spend by third party.
         #[ink(message)]
-        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+        pub fn allowance(&self, owner: AccountId, spender: AccountId) -> Token {
             self.get_allowance_or_zero(&owner, &spender)
         }
 
-        fn get_balance_or_zero(&self, of: &AccountId) -> Balance {
+        fn get_balance_or_zero(&self, of: &AccountId) -> Token {
             *self.balances.get(of).unwrap_or(&0)
         }
 
-        fn get_allowance_or_zero(&self, owner: &AccountId, spender: &AccountId) -> Balance {
+        fn get_allowance_or_zero(&self, owner: &AccountId, spender: &AccountId) -> Token {
             *self.allowances.get(&(*owner, *spender)).unwrap_or(&0)
         }
     }
@@ -209,7 +213,7 @@ mod $name_snake_case$ {
         #[ink::test]
         fn default_works() {
             let contract = $name_pascal_case$::default();
-            assert_eq!(contract.total_supply(), $param.default_total_supply$ * 1_000_000_000_000);
+            assert_eq!(contract.total_supply(), $param.default_total_supply$);
         }
 
         #[ink::test]
