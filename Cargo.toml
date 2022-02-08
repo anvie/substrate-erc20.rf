@@ -5,7 +5,7 @@ authors = ["$param.author_name$ <$param.author_email_lower_case$>"]
 description = "$param.description$"
 edition = "2018"
 
-[dependencies][dependencies]
+[dependencies]
 ink_primitives = { version = "3.0.0-rc6", default-features = false }
 ink_metadata = { version = "3.0.0-rc6", default-features = false, features = ["derive"], optional = true }
 ink_env = { version = "3.0.0-rc6", default-features = false }
